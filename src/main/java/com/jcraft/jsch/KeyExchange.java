@@ -191,11 +191,14 @@ public abstract class KeyExchange{
   protected boolean verify(String alg, byte[] K_S, int index,
                            byte[] sig_of_H) throws Exception {
     int i,j;
+    JSch.getLogger().log(Logger.INFO, "KeyExchange.verify: 1");
 
     i=index;
     boolean result=false;
 
     if(alg.equals("ssh-rsa")){
+        JSch.getLogger().log(Logger.INFO, "KeyExchange.verify: 2");
+
       byte[] tmp;
       byte[] ee;
       byte[] n;
@@ -215,6 +218,8 @@ public abstract class KeyExchange{
       SignatureRSA sig=null;
       try{
         Class c=Class.forName(session.getConfig("signature.rsa"));
+        JSch.getLogger().log(Logger.INFO, "KeyExchange.verify: 3. 'session.getConfig(\"signature.rsa\"):' " + session.getConfig("signature.rsa"));
+
         sig=(SignatureRSA)(c.newInstance());
         sig.init();
       }
@@ -223,7 +228,10 @@ public abstract class KeyExchange{
       }
       sig.setPubKey(ee, n);   
       sig.update(H);
+        JSch.getLogger().log(Logger.INFO, "KeyExchange.verify: 4. sig_of_H:" + sig_of_H.toString() + ", sig_of_H.length: " + sig_of_H.length );
+
       result=sig.verify(sig_of_H);
+        JSch.getLogger().log(Logger.INFO, "KeyExchange.verify: 5");
 
       if(JSch.getLogger().isEnabled(Logger.INFO)){
         JSch.getLogger().log(Logger.INFO, 

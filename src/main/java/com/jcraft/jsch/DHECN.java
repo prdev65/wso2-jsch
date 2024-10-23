@@ -29,6 +29,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
+import java.nio.charset.Charset;
+
 public abstract class DHECN extends KeyExchange{
 
   private static final int SSH_MSG_KEX_ECDH_INIT =                 30;
@@ -106,6 +108,7 @@ public abstract class DHECN extends KeyExchange{
   }
 
   public boolean next(Buffer _buf) throws Exception{
+    JSch.getLogger().log(Logger.INFO, "DHECN.next: Entering... " + new String(_buf.buffer, Charset.forName("UTF-8")));
     int i,j;
     switch(state){
     case SSH_MSG_KEX_ECDH_REPLY:
@@ -134,14 +137,19 @@ public abstract class DHECN extends KeyExchange{
       //   received.  An example of a validation algorithm can be found in
       //   Section 3.2.2 of [SEC1].  If a key fails validation,
       //   the key exchange MUST fail.
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 1");
       if(!ecdh.validate(r_s[0], r_s[1])){
 	return false;
       }
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 2");
 
       K = ecdh.getSecret(r_s[0], r_s[1]);
       K=normalize(K);
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 3");
+
 
       byte[] sig_of_H=_buf.getString();
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 4");
 
       //The hash H is computed as the HASH hash of the concatenation of the
       //following:
@@ -167,6 +175,7 @@ public abstract class DHECN extends KeyExchange{
 
       sha.update(foo, 0, foo.length);
       H=sha.digest();
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 5");
 
       i=0;
       j=0;
@@ -174,8 +183,9 @@ public abstract class DHECN extends KeyExchange{
 	((K_S[i++]<<8)&0x0000ff00)|((K_S[i++])&0x000000ff);
       String alg=Util.byte2str(K_S, i, j);
       i+=j;
-
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 6");
       boolean result = verify(alg, K_S, i, sig_of_H);
+      JSch.getLogger().log(Logger.INFO, "DHECN.next: 7");
 
       state=STATE_END;
       return result;

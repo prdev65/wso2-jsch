@@ -318,12 +318,17 @@ public class Session implements Runnable{
       }
 
       KeyExchange kex=receive_kexinit(buf);
+      
+      JSch.getLogger().log(Logger.INFO, 
+                                 "Session. After 'KeyExchange kex=receive_kexinit(buf)'; kex: " + kex.toString() + "; buf: " + buf.toString());
 
       while(true){
 	buf=read(buf);
 	if(kex.getState()==buf.getCommand()){
           kex_start_time=System.currentTimeMillis();
           boolean result=kex.next(buf);
+          JSch.getLogger().log(Logger.INFO, 
+                                 "Session. After 'boolean result=kex.next(buf);' result: " + result);
 	  if(!result){
 	    //System.err.println("verify: "+result);
             in_kex=false;
@@ -352,6 +357,9 @@ public class Session implements Runnable{
         throw ee;
       }
 
+      JSch.getLogger().log(Logger.INFO, 
+                                 "Session. Before 'send_newkeys();'");
+      
       send_newkeys();
 
       // receive SSH_MSG_NEWKEYS(21)
@@ -709,12 +717,15 @@ public class Session implements Runnable{
   }
 
   private void checkHost(String chost, int port, KeyExchange kex) throws JSchException {
+    JSch.getLogger().log(Logger.INFO, 
+                           "Session.checkHost: Entering...");
     String shkc=getConfig("StrictHostKeyChecking");
 
     if(hostKeyAlias!=null){
       chost=hostKeyAlias;
     }
-
+    JSch.getLogger().log(Logger.INFO, 
+                           "Session.checkHost: shkc: " + shkc + ", chost: " + chost);
     //System.err.println("shkc: "+shkc);
 
     byte[] K_S=kex.getHostKey();
@@ -852,6 +863,8 @@ key_type+" key fingerprint is "+key_fprint+".\n"+
 	hkr.add(hostkey, userinfo);
       }
     }
+    JSch.getLogger().log(Logger.INFO, 
+                           "Session.checkHost: Entering...");
   }
 
 //public void start(){ (new Thread(this)).start();  }

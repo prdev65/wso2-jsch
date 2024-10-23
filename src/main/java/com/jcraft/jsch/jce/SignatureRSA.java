@@ -69,7 +69,7 @@ public class SignatureRSA implements com.jcraft.jsch.SignatureRSA{
     int j=0;
     byte[] tmp;
     Buffer buf=new Buffer(sig);
-
+    
     if(new String(buf.getString()).equals("ssh-rsa")){
       j=buf.getInt();
       i=buf.getOffSet();
